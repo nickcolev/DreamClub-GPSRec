@@ -18,15 +18,13 @@ Requirements:
 - View a position/path at the map
 
 Database:
-index	- recordings index
-			tag	- Tags of a snapshot/recording
-			sn	- Key in 'frames' table (see below)
+toc - recordings index
 			t1	- Begin timestamp
 			t2	- End timestamp	(for a snapshot equals to 't1')
-frame	- recorded frames
-			sn	- Serial Number. If a recording, the frames have same SN.
-			time	- Timestamp
-			lat		- Lattitude
-			lng		- Longitude
-			p		- Precision (Accuracy)
-			src		- Source (Provider)
+			tag	- Tags of a snapshot/recording
+frame - recorded frames
+			ts	- Timestamp
+			lat	- Lattitude
+			lng	- Longitude
+			p	- Precision (Accuracy)
+			src	- Source (Provider)
