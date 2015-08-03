@@ -1,4 +1,4 @@
-package com.vera5.skm;
+package com.vera5.gpsrec;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
