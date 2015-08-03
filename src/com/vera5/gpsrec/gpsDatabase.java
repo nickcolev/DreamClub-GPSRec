@@ -40,6 +40,34 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		addFrame(db,1438524474450L,51.439425F,5.475918F,20F,"mock");
 		addFrame(db,1438524563682L,51.216371F,4.403981F,20F,"mock");
 		addFrame(db,1438524705614L,50.878812F,4.385538F,20F,"mock");
+		// more snapshots to test ListView larger than the screen
+		long ts = 1438530651346L;
+		addIndex(db,ts,ts,"Extra test1");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438530766129L;
+		addIndex(db,ts,ts,"Extra test2");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438530870229L;
+		addIndex(db,ts,ts,"Extra test3");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438530909416L;
+		addIndex(db,ts,ts,"Extra test4");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438530949898L;
+		addIndex(db,ts,ts,"Extra test5");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438531011749L;
+		addIndex(db,ts,ts,"Extra test6");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438531065447L;
+		addIndex(db,ts,ts,"Extra test7");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438531092489L;
+		addIndex(db,ts,ts,"Extra test8");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
+		ts = 1438531158030L;
+		addIndex(db,ts,ts,"Extra test9");
+		addFrame(db,ts,51.439425F,5.475918F,20F,"mock");
 	}
 
 	@Override
