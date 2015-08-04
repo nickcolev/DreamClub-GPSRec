@@ -25,7 +25,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE toc (t1 INTEGER NOT NULL,t2 INTEGER NOT NULL,tag VARCHAR(40))");
 		db.execSQL("CREATE INDEX toc_t2 ON toc(t2)");
 		// Frames
-		db.execSQL("CREATE TABLE frames (ts INTEGER NOT NULL,lat REAL NOT NULL,lng REAL NOT NULL,p REAL,src VARCHAR(10))");
+		db.execSQL("CREATE TABLE frames (a INTEGER NOT NULL DEFAULT 0,ts INTEGER NOT NULL,lat REAL NOT NULL,lng REAL NOT NULL,p REAL,src VARCHAR(10))");
 		db.execSQL("CREATE INDEX frames_ts ON frames(ts)");
 		// Test data
 		// some snapshots
@@ -36,10 +36,10 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		addIndex(db,1438524197378L,1438524197378L,"Shumen");
 		addFrame(db,1438524197378L,43.271641F,26.923873F,20F,"mock");
 		// a path (Eindhoven-Antwerp-Brussels)
-		addIndex(db,1438524474450L,1438524705614L,"Eindhoven-Antwerp-Brussels");
-		addFrame(db,1438524474450L,51.439425F,5.475918F,20F,"mock");
-		addFrame(db,1438524563682L,51.216371F,4.403981F,20F,"mock");
-		addFrame(db,1438524705614L,50.878812F,4.385538F,20F,"mock");
+		addIndex(db,1438524474450L,1438524705614L,"Eindhoven-Antwerp-Brussels",1);
+		addFrame(db,1438524474450L,51.439425F,5.475918F,20F,"mock",1);
+		addFrame(db,1438524563682L,51.216371F,4.403981F,20F,"mock",1);
+		addFrame(db,1438524705614L,50.878812F,4.385538F,20F,"mock",1);
 		// more snapshots to test ListView larger than the screen
 		long ts = 1438530651346L;
 		addIndex(db,ts,ts,"Extra test1");
@@ -81,8 +81,8 @@ public class gpsDatabase extends SQLiteOpenHelper {
 	public void addIndex(SQLiteDatabase db,long t1,long t2,String tag) {
 		db.execSQL("INSERT INTO toc (t1,t2,tag) VALUES ("+t1+","+t2+",'"+tag+"')");
 	}
-	public void addFrame(SQLiteDatabase db,long ts,float lat,float lng,float p,String src) {
-		db.execSQL("INSERT INTO frames (ts,lat,lng,p,src) VALUES ("+ts+","+lat+","+lng+","+p+",'"+src+"')");
+	public void addFrame(SQLiteDatabase db,long ts,float lat,float lng,float p,String src,int a) {
+		db.execSQL("INSERT INTO frames (a,ts,lat,lng,p,src) VALUES ("+a+","+ts+","+lat+","+lng+","+p+",'"+src+"')");
 	}
 
 	// Overloaded
@@ -90,8 +90,10 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		db.execSQL("INSERT INTO frequency (freq,tag) VALUES ("+frequency+",'"+escape(tag)+"')");
 	}
 
-	public void del(String frequency) {
-		getWritableDatabase().execSQL("DELETE FROM frequency WHERE freq="+frequency);
+	public void del(long t1,long t2) {
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("DELETE FROM toc WHERE t1="+t1+" AND t2="+t2);
+		db.execSQL("DELETE FROM frames WHERE ts BETWEEN "+t1+" AND "+t2);
 	}
 
 	private String escape(String s) {

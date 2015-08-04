@@ -1,6 +1,8 @@
 package com.vera5.gpsrec;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -36,7 +38,26 @@ Log.d("***", "onclick: "+id+", t1="+curs.getFloat(1)+", t2="+curs.getFloat(2));
 				startActivity(new Intent(".MapView"));
 			}
 		});
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent,View view,int position,long id) {
+				Cursor curs = (Cursor) adapter.getItem(position);
+				Delete(curs,id);
+				return true;
+			}
+		});
 		lv.setAdapter(adapter);
+	}
+
+	private void Delete(final Cursor curs, final long id) {
+		new AlertDialog.Builder(this)
+			.setMessage("Delete "+curs.getString(3)+"?")
+			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) { 
+					db.del(curs.getLong(1),curs.getLong(2));
+					adapter.getCursor().requery();
+				}
+			}).show();
 	}
 
 	public void Record(View view) {
