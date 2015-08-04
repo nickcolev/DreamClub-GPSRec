@@ -1,11 +1,13 @@
 package com.vera5.gpsrec;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
+//import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -13,6 +15,7 @@ public class Main extends ListActivity {
 
   private gpsDatabase db;
   private ListView lv;
+  private dbAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -20,10 +23,19 @@ public class Main extends ListActivity {
 		setContentView(R.layout.main);
 Log.d("***", "ts: "+System.currentTimeMillis());
 		db = new gpsDatabase(this);
-        lv = getListView();
         Cursor curs = db.query("SELECT rowid AS _id,t1,t2,tag FROM toc ORDER BY t2 DESC");
         startManagingCursor(curs);
-        dbAdapter adapter = new dbAdapter(this,curs);
+        adapter = new dbAdapter(this,curs);
+        lv = getListView();
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent,View view,int position,long id) {
+				Cursor curs = (Cursor) adapter.getItem(position);
+				// Populate location array from frames and pass to the view
+Log.d("***", "onclick: "+id+", t1="+curs.getFloat(1)+", t2="+curs.getFloat(2));
+				startActivity(new Intent(".MapView"));
+			}
+		});
 		lv.setAdapter(adapter);
 	}
 

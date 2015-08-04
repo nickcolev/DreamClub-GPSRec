@@ -10,12 +10,14 @@
 			android:id="@+id/ico"
 			android:layout_height="wrap_content"
 			android:layout_width="80dp"
+			android:textSize="18sp"
 			android:textColor="#FFFF77"
 			android:layout_gravity="right" />
 		<TextView
 			android:id="@+id/tag"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
+			android:textSize="18sp"
 			android:paddingLeft="8dp" />
 	</TableRow>
 </TableLayout> 
