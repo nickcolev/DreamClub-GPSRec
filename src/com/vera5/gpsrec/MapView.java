@@ -26,7 +26,6 @@ public class MapView extends Activity {
 		webview.getSettings().setBuiltInZoomControls(false);
 		String html = setHtml();
 		webview.loadData(html,"text/html","UTF-8");
-		//webview.loadUrl("file:///android_asset/main.htm");
 	}
 
 	private int deviceHeight() {
