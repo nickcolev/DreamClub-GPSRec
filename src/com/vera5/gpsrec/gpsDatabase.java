@@ -6,6 +6,7 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.util.Log;
 
 public class gpsDatabase extends SQLiteOpenHelper {
@@ -30,44 +31,38 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		// Test data
 		// some snapshots
 		addIndex(db,1438523596246L,1438523596246L,"Eindhoven");
-		addFrame(db,1438523596246L,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,1438523596246L,51.439425D,5.475918D,20F,"mock",0);
 		addIndex(db,1438523973450L,1438523973450L,"Reni place");
-		addFrame(db,1438523973450L,51.423071F,5.574119F,20F,"mock",0);
+		addFrame(db,1438523973450L,51.423071D,5.574119D,20F,"mock",0);
 		addIndex(db,1438524197378L,1438524197378L,"Shumen");
-		addFrame(db,1438524197378L,43.271641F,26.923873F,20F,"mock",0);
+		addFrame(db,1438524197378L,43.271641D,26.923873D,20F,"mock",0);
 		// a path (Eindhoven-Antwerp-Brussels)
 		addIndex(db,1438524474450L,1438524705614L,"Eindhoven-Antwerp-Brussels");
-		addFrame(db,1438524474450L,51.439425F,5.475918F,20F,"mock",1);
-		addFrame(db,1438524563682L,51.216371F,4.403981F,20F,"mock",1);
-		addFrame(db,1438524705614L,50.878812F,4.385538F,20F,"mock",1);
+		addFrame(db,1438524474450L,51.439425D,5.475918D,20F,"mock",1);
+		addFrame(db,1438524563682L,51.216371D,4.403981D,20F,"mock",1);
+		addFrame(db,1438524705614L,50.878812D,4.385538D,20F,"mock",1);
 		// more snapshots to test ListView larger than the screen
 		long ts = 1438530651346L;
 		addIndex(db,ts,ts,"Extra test1");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438530766129L;
 		addIndex(db,ts,ts,"Extra test2");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438530870229L;
 		addIndex(db,ts,ts,"Extra test3");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438530909416L;
 		addIndex(db,ts,ts,"Extra test4");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438530949898L;
 		addIndex(db,ts,ts,"Extra test5");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438531011749L;
 		addIndex(db,ts,ts,"Extra test6");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 		ts = 1438531065447L;
 		addIndex(db,ts,ts,"Extra test7");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
-		ts = 1438531092489L;
-		addIndex(db,ts,ts,"Extra test8");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
-		ts = 1438531158030L;
-		addIndex(db,ts,ts,"Extra test9");
-		addFrame(db,ts,51.439425F,5.475918F,20F,"mock",0);
+		addFrame(db,ts,51.439425D,5.475918D,20F,"mock",0);
 	}
 
 	@Override
@@ -81,7 +76,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 	public void addIndex(SQLiteDatabase db,long t1,long t2,String tag) {
 		db.execSQL("INSERT INTO toc (t1,t2,tag) VALUES ("+t1+","+t2+",'"+tag+"')");
 	}
-	public void addFrame(SQLiteDatabase db,long ts,float lat,float lng,float p,String src,int a) {
+	public void addFrame(SQLiteDatabase db,long ts,double lat,double lng,float p,String src,int a) {
 		db.execSQL("INSERT INTO frames (a,ts,lat,lng,p,src) VALUES ("+a+","+ts+","+lat+","+lng+","+p+",'"+src+"')");
 	}
 
@@ -98,6 +93,12 @@ public class gpsDatabase extends SQLiteOpenHelper {
 
 	private String escape(String s) {
 		return s.replace("'","''");
+	}
+
+	protected void snapshot(Location loc) {
+		SQLiteDatabase db = getWritableDatabase();
+		addFrame(db,loc.getTime(),loc.getLatitude(),loc.getLongitude(),loc.getAccuracy(),loc.getProvider(),0);
+		addIndex(db,loc.getTime(),loc.getTime(),Lib.ts2dts(loc.getTime()));
 	}
 
 }

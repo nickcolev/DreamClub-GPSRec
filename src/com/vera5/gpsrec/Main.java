@@ -42,17 +42,11 @@ public class Main extends ListActivity {
 		notification = new Notification(R.drawable.ic_launcher, "", System.currentTimeMillis());
 		// Location
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-		provider = locationManager.getBestProvider(criteria, false);
-		try {
-			Location lastGood = locationManager.getLastKnownLocation(provider);
-			if (lastGood == null)
-				Tooltip("Last known location unavailable");
-			else
-				updateNotifiction(""+Lib.round5(lastGood.getLatitude())+","+Lib.round5(lastGood.getLongitude()));
-		} catch (Exception e) {
-			Log.e("***", e.getMessage());
-		}
+		Location lastGood = getLastKnownLocation();
+		if (lastGood == null)
+			Tooltip("Last known location unavailable");
+		else
+			updateNotifiction(""+Lib.round5(lastGood.getLatitude())+","+Lib.round5(lastGood.getLongitude()));
 		locationListener = new MyListener();
 		// ListView
 Log.d("***", "ts: "+System.currentTimeMillis());
@@ -112,6 +106,26 @@ Log.d("***", "Record()");
 
 	public void Snapshot(View view) {
 Log.d("***", "Snapshot()");
+		Location loc = getLastKnownLocation();
+		if (loc == null)
+			Tooltip("Last known location unavailable");
+		else {
+			db.snapshot(loc);
+			adapter.getCursor().requery();
+			Tooltip("Saved");
+		}
+	}
+
+	private Location getLastKnownLocation() {
+		Criteria criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, true);
+		Location loc = null;
+		try {
+			loc = locationManager.getLastKnownLocation(provider);
+		} catch (Exception e) {
+			Log.e("***", e.getMessage());
+		}
+		return loc;
 	}
 
 	private void Tooltip(String s) {
