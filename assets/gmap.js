@@ -34,7 +34,7 @@ for (i = 0; i < locations.length; i++) {
 function init() {
 	var o = document.getElementById("map");
 	var t = document.getElementById("test");
-	//o.style.height = screen.availHeight + "px";
-	//o.style.width = screen.availWidth + "px";
+	o.style.height = screen.availHeight + "px";
+	o.style.width = screen.availWidth + "px";
 	t.innerText = screen.availWidth + 'x' + screen.availHeight;
 }
