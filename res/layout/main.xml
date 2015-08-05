@@ -4,19 +4,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-	<!-- top stripe: Current location -->
-	<TextView android:id="@+id/top"
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-		android:text="Current location"
-		/>
-	<!-- middle: ListView with recordings -->
 	<ListView android:id="@android:id/list"
 		android:layout_width="wrap_content" 
 		android:layout_height="0dp"
 		android:layout_weight="1"
 		android:choiceMode="singleChoice"
 		android:drawSelectorOnTop="false" />
+
 	<!-- bottom stripe: Control buttons -->
 	<LinearLayout
         android:orientation="horizontal"

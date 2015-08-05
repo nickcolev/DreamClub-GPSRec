@@ -48,7 +48,7 @@ public class Main extends ListActivity {
 		if (lastGood == null)
 			Tooltip("Last known location unavailable");
 		else
-			updateNotifiction(""+Lib.round5(lastGood.getLatitude())+","+Lib.round5(lastGood.getLongitude()));
+			updateNotifiction(sLocation(lastGood));
 		locationListener = new MyListener();
 		// ListView
 Log.d("***", "ts: "+System.currentTimeMillis());
@@ -109,11 +109,10 @@ Log.d("***", "onclick: "+id+", t1="+curs.getFloat(1)+", t2="+curs.getFloat(2));
 	}
 
 	public void Record(View view) {
-Log.d("***", "Record()");
+Tooltip("Record() under development");
 	}
 
 	public void Snapshot(View view) {
-Log.d("***", "Snapshot()");
 		Location loc = getLastKnownLocation();
 		if (loc == null)
 			Tooltip("Last known location unavailable");
@@ -126,9 +125,7 @@ Log.d("***", "Snapshot()");
 
 	private Location getLastKnownLocation() {
 		Criteria criteria = new Criteria();
-		//criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		provider = locationManager.getBestProvider(criteria,true);
-		Tooltip("Provider: "+provider);
 		Location loc = null;
 		try {
 			loc = locationManager.getLastKnownLocation(provider);
@@ -149,14 +146,16 @@ Log.d("***", "Snapshot()");
 		mNM.notify(NOTIFICATION_ID, notification);
 	}
 
+	private String sLocation(Location location) {
+		return	Lib.ts2ts(location.getTime()) + " @ "
+			+	Lib.round5(location.getLatitude())+","+Lib.round5(location.getLongitude());
+	}
+
 	final class MyListener implements LocationListener {
 		@Override
 		public void onLocationChanged(Location location) {
-			String s = Lib.ts2dts(location.getTime());
-			String[] a = s.split(" ");
-			Log.d("***", ""+location.getLatitude()+","+location.getLongitude()+" ("+Lib.round1(location.getAccuracy())+")");
 			Tooltip(""+location.getLatitude()+","+location.getLongitude());
-			updateNotifiction(Lib.ts2ts(location.getTime())+"@"+location.getLatitude()+","+location.getLongitude());
+			updateNotifiction(sLocation(location));
 		}
 		@Override
 		public void onProviderDisabled(String provider) {
