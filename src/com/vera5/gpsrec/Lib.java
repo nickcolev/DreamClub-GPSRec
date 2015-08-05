@@ -40,6 +40,11 @@ public class Lib {
 		return sdf.format(new Date(timestamp));
 	}
 
+	protected static String ts2ts(long timestamp) {	// TimeStamp-to-TimeString
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		return sdf.format(new Date(timestamp));
+	}
+
 	protected static CharSequence todays() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(new Date());

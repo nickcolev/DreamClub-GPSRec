@@ -23,6 +23,8 @@ import android.location.LocationManager;
 public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
+  private final long interval = 2000;	// interval between location updates in ms
+  private final float distance = 5f;	// distance between location updates in meters
   private gpsDatabase db;
   private ListView lv;
   private dbAdapter adapter;
@@ -76,6 +78,12 @@ Log.d("***", "onclick: "+id+", t1="+curs.getFloat(1)+", t2="+curs.getFloat(2));
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		locationManager.requestLocationUpdates(provider,interval,distance,locationListener);
+	}
+
+	@Override
 	public void onDestroy() {
 		mNM.cancel(NOTIFICATION_ID);
 		super.onDestroy();
@@ -118,7 +126,9 @@ Log.d("***", "Snapshot()");
 
 	private Location getLastKnownLocation() {
 		Criteria criteria = new Criteria();
-		provider = locationManager.getBestProvider(criteria, true);
+		//criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		provider = locationManager.getBestProvider(criteria,true);
+		Tooltip("Provider: "+provider);
 		Location loc = null;
 		try {
 			loc = locationManager.getLastKnownLocation(provider);
@@ -142,9 +152,11 @@ Log.d("***", "Snapshot()");
 	final class MyListener implements LocationListener {
 		@Override
 		public void onLocationChanged(Location location) {
+			String s = Lib.ts2dts(location.getTime());
+			String[] a = s.split(" ");
 			Log.d("***", ""+location.getLatitude()+","+location.getLongitude()+" ("+Lib.round1(location.getAccuracy())+")");
 			Tooltip(""+location.getLatitude()+","+location.getLongitude());
-			updateNotifiction(""+location.getLatitude()+","+location.getLongitude());
+			updateNotifiction(Lib.ts2ts(location.getTime())+"@"+location.getLatitude()+","+location.getLongitude());
 		}
 		@Override
 		public void onProviderDisabled(String provider) {
