@@ -51,7 +51,7 @@ public class Main extends ListActivity {
 			updateNotifiction(sLocation(lastGood));
 		locationListener = new MyListener();
 		// ListView
-Log.d("***", "ts: "+System.currentTimeMillis());
+//Log.d("***", "ts: "+System.currentTimeMillis());
 		db = new gpsDatabase(this);
         Cursor curs = db.query("SELECT rowid AS _id,t1,t2,tag FROM toc ORDER BY t2 DESC");
         startManagingCursor(curs);
@@ -62,8 +62,11 @@ Log.d("***", "ts: "+System.currentTimeMillis());
 			public void onItemClick(AdapterView<?> parent,View view,int position,long id) {
 				Cursor curs = (Cursor) adapter.getItem(position);
 				// Populate location array from frames and pass to the view
-Log.d("***", "onclick: "+id+", t1="+curs.getFloat(1)+", t2="+curs.getFloat(2));
-				startActivity(new Intent(".MapView"));
+				Intent intent = new Intent(".MapView");
+				intent.putExtra("t1", curs.getLong(1));
+				intent.putExtra("t2", curs.getLong(2));
+				intent.putExtra("tag", curs.getString(3));
+				startActivity(intent);
 			}
 		});
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -154,7 +157,6 @@ Tooltip("Record() under development");
 	final class MyListener implements LocationListener {
 		@Override
 		public void onLocationChanged(Location location) {
-			Tooltip(""+location.getLatitude()+","+location.getLongitude());
 			updateNotifiction(sLocation(location));
 		}
 		@Override

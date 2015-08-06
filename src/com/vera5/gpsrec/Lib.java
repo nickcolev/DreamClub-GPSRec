@@ -25,6 +25,10 @@ public class Lib {
 		return s.matches("^\\d{4}\\-\\d{2}\\-\\d{2}$");
 	}
 
+	protected static boolean isSnapshot(long t1, long t2) {
+		return (t1 == t2);
+	}
+
 	protected static String round1(double f) {
 		DecimalFormat df = new DecimalFormat("#.#");
 		return df.format(f);

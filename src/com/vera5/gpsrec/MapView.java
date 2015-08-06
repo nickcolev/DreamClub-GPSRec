@@ -3,15 +3,11 @@ package com.vera5.gpsrec;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 import android.util.Log;
-
-import android.graphics.Point;
-import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.View;
 
 public class MapView extends Activity {
 
@@ -23,43 +19,81 @@ public class MapView extends Activity {
 		setContentView(R.layout.mapview);
 		WebView webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
+		//webview.setWebChromeClient(new WebChromeClient());
 		webview.getSettings().setBuiltInZoomControls(false);
-		String html = setHtml();
+		webview.getSettings().setSupportZoom(false);
+		String html = setHtml(getMarkers());
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
-	private int deviceHeight() {
-		DisplayMetrics m = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(m);
-		int height = m.heightPixels - 38;	// FIXME Find a way to get system decoration area height
-		int y = Math.round(height*(m.ydpi/96));
-Log.d("***", "scrX -- heightPixels: "+m.heightPixels+", ydpi: "+m.ydpi+", calc: "+y);
-		return y;
-	}
-
-	private int deviceWidth() {
-		DisplayMetrics m = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(m);
-		int width = m.widthPixels - 0;	// FIXME Find a better way
-		int x = Math.round(width*(m.xdpi/96));
-Log.d("***", "scrX -- widthPixels: "+m.widthPixels+", xdpi: "+m.xdpi+", calc: "+x);
-		return x;
-	}
-
-	private String setHtml() {
+	private String setHtml(String markers) {
+		String center = spotCenter(markers);
+		String zoom = "14";
+//Tooltip(center+" \n"+markers);
 		return "<script src=\"http://maps.google.com/maps/api/js?sensor=false\" type=\"text/javascript\"></script>\n"
 			+ "<style type=\"text/css\">\n"
 			+ "html, body { body: 0; margin: 0; }\n"
 			+ "#tag { border: 0; margin: 0; }\n"
 			+ "</style>\n"
-			+ "<div id=\"map\" style=\"width: "+deviceWidth()+"px; height: "+deviceHeight()+"px;\"></div>\n"
+			+ "<div id=\"map\"></div>\n"
 			+ "<script type=\"text/javascript\">\n"
+			+ "var o = document.getElementById('map');\n"
+			+ "o.style.width = window.innerWidth;\n"
+			+ "o.style.height = window.innerHeight;\n"
 			+ "var map = new google.maps.Map(document.getElementById('map'), {\n"
-			+ "  zoom: 12,\n"
-			+ "  center: new google.maps.LatLng(47.071876, 15.441456),\n"
+			+ "  zoom: "+zoom+",\n"
+			+ "  center: new google.maps.LatLng("+center+"),\n"
 			+ "  mapTypeId: google.maps.MapTypeId.ROADMAP\n"
 			+ "});\n"
+			+ setMapMarkers(markers)
 			+ "</script>";
+	}
+
+	private String setMapMarkers(String markers) {
+		return "var locations = [\n" + markers + "\n];\n"
+			+ "var infowindow = new google.maps.InfoWindow();\n"
+			+ "var marker, i;\n"
+			+ "for (i = 0; i < locations.length; i++) {\n"
+			+ " marker = new google.maps.Marker({\n"
+			+ " position: new google.maps.LatLng(locations[i][1], locations[i][2]),\n"
+			+ " map: map\n"
+			+ "});\n"
+			+ "google.maps.event.addListener(marker, 'click', (function(marker, i) {\n"
+			+ " return function() {\n"
+			+ "  infowindow.setContent(locations[i][0]);\n"
+			+ "  infowindow.open(map, marker);\n"
+			+ " }\n"
+			+ "})(marker, i));\n"
+			+ "}\n";
+	}
+
+	private String spotCenter(String s) {
+		// ['tag',lat,lng,a]	FIXME awful logic
+		int i = s.indexOf("[");
+		if(i != -1) {
+			s = s.substring(i+1);
+			i = s.indexOf("]");
+			if(i != -1) {
+				s = s.substring(0,i);
+				i = s.indexOf(",");
+				if(i != -1) {
+					s = s.substring(i+1);
+					String[] a = s.split(",");
+					s = a[0]+","+a[1];
+					return s;
+				}
+			}
+		}
+		return "47.071876, 15.441456";	// FIXME
+	}
+
+	private String getMarkers() {
+		Bundle extras = getIntent().getExtras();
+		String tag = extras.getString("tag");
+		long t1 = extras.getLong("t1"), t2 = extras.getLong("t2");
+		// Process actual GPSs
+		gpsDatabase db = new gpsDatabase(this);
+		return db.getMarkers(t1,t2);
 	}
 
 	private void Tooltip(String s) {
