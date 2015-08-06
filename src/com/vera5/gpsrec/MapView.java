@@ -3,6 +3,9 @@ package com.vera5.gpsrec;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -12,24 +15,36 @@ import android.util.Log;
 public class MapView extends Activity {
 
   private WebView webview;
+  private String tag;
+  private long id, t1, t2;
+  private gpsDatabase db;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mapview);
-		WebView webview = (WebView) findViewById(R.id.webview);
+		db = new gpsDatabase(this);
+		// Process args
+		Bundle extras = getIntent().getExtras();
+		id  = extras.getLong("id");
+		tag = extras.getString("tag");
+		t1  = extras.getLong("t1");
+		t2  = extras.getLong("t2");
+		setTitle(tag == null ? Lib.ts2dts(t2) : tag);		
+		// Setup the WebView
+		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		//webview.setWebChromeClient(new WebChromeClient());
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
 		String html = setHtml(getMarkers());
+Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
 	private String setHtml(String markers) {
 		String center = spotCenter(markers);
 		String zoom = "14";
-//Tooltip(center+" \n"+markers);
 		return "<script src=\"http://maps.google.com/maps/api/js?sensor=false\" type=\"text/javascript\"></script>\n"
 			+ "<style type=\"text/css\">\n"
 			+ "html, body { body: 0; margin: 0; }\n"
@@ -88,17 +103,29 @@ public class MapView extends Activity {
 	}
 
 	private String getMarkers() {
-		Bundle extras = getIntent().getExtras();
-		String tag = extras.getString("tag");
-		long t1 = extras.getLong("t1"), t2 = extras.getLong("t2");
-		setTitle(tag == null ? Lib.ts2dts(t2) : tag);
-		// Process actual GPSs
-		gpsDatabase db = new gpsDatabase(this);
 		return db.getMarkers(t1,t2);
 	}
 
 	private void Tooltip(String s) {
 		Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.view, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.tag:
+				webview.loadUrl("javascript:setTag("+id+",'"+getIntent().getExtras().getString("tag")+"')");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 }

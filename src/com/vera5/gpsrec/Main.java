@@ -23,8 +23,8 @@ import android.location.LocationManager;
 public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
-  private final long interval = 2000;	// interval between location updates in ms
-  private final float distance = 5f;	// distance between location updates in meters
+  private final long interval = 3000;	// interval between location updates in ms
+  private final float distance = 15f;	// distance between location updates in meters
   private gpsDatabase db;
   private ListView lv;
   private dbAdapter adapter;
@@ -63,6 +63,7 @@ public class Main extends ListActivity {
 				Cursor curs = (Cursor) adapter.getItem(position);
 				// Populate location array from frames and pass to the view
 				Intent intent = new Intent(".MapView");
+				intent.putExtra("id", id);
 				intent.putExtra("t1", curs.getLong(1));
 				intent.putExtra("t2", curs.getLong(2));
 				intent.putExtra("tag", curs.getString(3));

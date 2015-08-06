@@ -63,8 +63,9 @@ public class gpsDatabase extends SQLiteOpenHelper {
 
 	public void del(long t1,long t2) {
 		SQLiteDatabase db = getWritableDatabase();
+		int a = t1 == t2 ? 0 : 1;	// Snapshot/Record
 		db.execSQL("DELETE FROM toc WHERE t1="+t1+" AND t2="+t2);
-		db.execSQL("DELETE FROM frames WHERE ts BETWEEN "+t1+" AND "+t2);
+		db.execSQL("DELETE FROM frames WHERE a="+a+" AND ts BETWEEN "+t1+" AND "+t2);
 	}
 
 	public String getMarkers(long t1, long t2) {
@@ -72,7 +73,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		SQLiteDatabase db = getReadableDatabase();
 		String sql = "SELECT ts,lat,lng,p,src FROM frames WHERE a="+a
 			+ " AND ts BETWEEN "+t1+" AND "+t2;
-Log.d("***", sql);
+//Log.d("***", sql);
 		Cursor curs = db.rawQuery(sql,null);
 		String json = "";
 		if (curs.moveToFirst()) {
@@ -81,6 +82,12 @@ Log.d("***", sql);
 			} while (curs.moveToNext());
 		}
 		return json.substring(0,json.length()-1);
+	}
+
+	public void setTag (long id, String tag) {
+Log.d("***", "db.setTag("+id+","+tag+")");
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("UPDATE toc SET tag='"+escape(tag)+"' WHERE rowid="+id);
 	}
 
 	private String escape(String s) {
