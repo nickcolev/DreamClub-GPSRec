@@ -91,6 +91,7 @@ public class MapView extends Activity {
 		Bundle extras = getIntent().getExtras();
 		String tag = extras.getString("tag");
 		long t1 = extras.getLong("t1"), t2 = extras.getLong("t2");
+		setTitle(tag == null ? Lib.ts2dts(t2) : tag);
 		// Process actual GPSs
 		gpsDatabase db = new gpsDatabase(this);
 		return db.getMarkers(t1,t2);

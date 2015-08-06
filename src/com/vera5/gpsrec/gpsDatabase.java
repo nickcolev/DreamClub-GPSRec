@@ -43,7 +43,6 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		addFrame(db,1438524474450L,51.439425D,5.475918D,20F,"mock",1);
 		addFrame(db,1438524563682L,51.216371D,4.403981D,20F,"mock",1);
 		addFrame(db,1438524705614L,50.878812D,4.385538D,20F,"mock",1);
-		db.close();
 	}
 
 	@Override
