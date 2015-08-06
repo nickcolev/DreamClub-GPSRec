@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class dbAdapter extends CursorAdapter {
@@ -24,12 +25,12 @@ public class dbAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor curs) {
-		TextView tvIco = (TextView) view.findViewById(R.id.ico);
-		TextView tvTag  = (TextView) view.findViewById(R.id.tag);
+		ImageView ico = (ImageView) view.findViewById(R.id.ico);
+		TextView tag  = (TextView) view.findViewById(R.id.tag);
 		long t1 = curs.getLong(1);
 		long t2 = curs.getLong(2);
-		tvIco.setText(t1 == t2 ? "ico" : "mov");
-		tvTag.setText(curs.getString(3));
+		ico.setImageResource(t1 == t2 ? R.drawable.ic_action_photo : R.drawable.ic_action_video);
+		tag.setText(curs.getString(3)==null ? Lib.ts2dts(t2) : curs.getString(3));
 	}
 
 }
