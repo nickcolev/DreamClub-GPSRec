@@ -1,6 +1,8 @@
 package com.vera5.gpsrec;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,6 +11,7 @@ import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -38,7 +41,7 @@ public class MapView extends Activity {
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
 		String html = setHtml(getMarkers());
-Log.d("***", html);
+//Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
@@ -121,11 +124,29 @@ Log.d("***", html);
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.tag:
-				webview.loadUrl("javascript:setTag("+id+",'"+getIntent().getExtras().getString("tag")+"')");
+				tagDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void tagDialog() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		final EditText input = new EditText(this);
+		input.setText(tag);
+		input.selectAll();
+		//alert.setMessage("Enter Your Message");
+		alert.setTitle("Tag");
+		alert.setView(input);
+		alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		public void onClick(DialogInterface dialog, int whichButton) {
+			tag = input.getText().toString();
+				setTitle(tag);
+				db.setTag(id,tag);
+			}
+		});
+		alert.show();
 	}
 
 }
