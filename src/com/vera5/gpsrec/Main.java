@@ -121,7 +121,7 @@ public class Main extends ListActivity {
 			else {
 				db.addIndex(t1rec,t2rec,Lib.ts2sdts(t2rec));
 				adapter.getCursor().requery();
-				Tooltip("Recorded");
+				Tooltip("Saved");
 			}
 			t1rec = t2rec = 0L;
 			setTitleColor(0xFFFFFFFF);
@@ -189,12 +189,9 @@ public class Main extends ListActivity {
 			updateNotifiction(sLocation(location));
 			if(isRecording) {
 				db.addFrame(location.getTime(),location.getLatitude(),location.getLongitude(),location.getAccuracy(),location.getProvider(),1);
-				if(t1rec == 0L) {				// Fix start time
+				if(t1rec == 0L)				// Fix start time
 					t1rec = location.getTime();
-					Tooltip("Fix start time");
-				}
 				t2rec = location.getTime();	// Update end time
-				Tooltip("Recorded frame "+t2rec);
 			}
 		}
 		@Override
