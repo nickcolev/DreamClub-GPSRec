@@ -56,11 +56,19 @@ public class gpsDatabase extends SQLiteOpenHelper {
 	public void addIndex(SQLiteDatabase db,long t1,long t2,String tag) {
 		db.execSQL("INSERT INTO toc (t1,t2,tag) VALUES ("+t1+","+t2+",'"+tag+"')");
 	}
+	// Overloaded
+	public void addIndex(long t1,long t2,String tag) {
+		addIndex(getWritableDatabase(),t1,t2,tag);
+	}
 
 	public void addFrame(SQLiteDatabase db,long ts,double lat,double lng,float p,String src,int a) {
 		db.execSQL("INSERT INTO frames (a,ts,lat,lng,p,src) VALUES ("+a+","+ts+","+lat+","+lng+","+p+",'"+src+"')");
 	}
-
+	// Overloaded
+	public void addFrame(long ts,double lat,double lng,float p,String src,int a) {
+		addFrame(getWritableDatabase(),ts,lat,lng,p,src,a);
+	}
+	
 	public void del(long t1,long t2) {
 		SQLiteDatabase db = getWritableDatabase();
 		int a = t1 == t2 ? 0 : 1;	// Snapshot/Record
@@ -73,19 +81,17 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		SQLiteDatabase db = getReadableDatabase();
 		String sql = "SELECT ts,lat,lng,p,src FROM frames WHERE a="+a
 			+ " AND ts BETWEEN "+t1+" AND "+t2;
-//Log.d("***", sql);
 		Cursor curs = db.rawQuery(sql,null);
 		String json = "";
 		if (curs.moveToFirst()) {
 			do {
-				json += "['"+Lib.ts2dts(curs.getLong(0))+"', "+curs.getFloat(1)+", "+curs.getFloat(2)+", 1],";
+				json += "['"+Lib.ts2sdts(curs.getLong(0))+"', "+curs.getFloat(1)+", "+curs.getFloat(2)+", 1],";
 			} while (curs.moveToNext());
 		}
 		return json.substring(0,json.length()-1);
 	}
 
 	public void setTag (long id, String tag) {
-Log.d("***", "db.setTag("+id+","+tag+")");
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("UPDATE toc SET tag='"+escape(tag)+"' WHERE rowid="+id);
 	}
@@ -97,7 +103,7 @@ Log.d("***", "db.setTag("+id+","+tag+")");
 	protected void snapshot(Location loc) {
 		SQLiteDatabase db = getWritableDatabase();
 		addFrame(db,loc.getTime(),loc.getLatitude(),loc.getLongitude(),loc.getAccuracy(),loc.getProvider(),0);
-		addIndex(db,loc.getTime(),loc.getTime(),Lib.ts2dts(loc.getTime()));
+		addIndex(db,loc.getTime(),loc.getTime(),Lib.ts2sdts(loc.getTime()));
 	}
 
 }

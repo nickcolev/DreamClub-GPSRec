@@ -9,8 +9,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.animation.*;	// Animation
+import android.view.View.OnClickListener;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.util.Log;
@@ -23,8 +26,10 @@ import android.location.LocationManager;
 public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
+  // FIXME For production, select good values below
   private final long interval = 3000;	// interval between location updates in ms
-  private final float distance = 15f;	// distance between location updates in meters
+  private final float distance = 12f;	// distance between location updates in meters
+  private final AlphaAnimation animation = null;
   private gpsDatabase db;
   private ListView lv;
   private dbAdapter adapter;
@@ -34,6 +39,7 @@ public class Main extends ListActivity {
   private NotificationManager mNM;
   private Notification notification;
   private boolean isRecording = false;
+  private long t1rec = 0L, t2rec = 0L;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +57,6 @@ public class Main extends ListActivity {
 			updateNotifiction(sLocation(lastGood));
 		locationListener = new MyListener();
 		// ListView
-//Log.d("***", "ts: "+System.currentTimeMillis());
 		db = new gpsDatabase(this);
         Cursor curs = db.query("SELECT rowid AS _id,t1,t2,tag FROM toc ORDER BY t2 DESC");
         startManagingCursor(curs);
@@ -79,17 +84,14 @@ public class Main extends ListActivity {
 			}
 		});
 		lv.setAdapter(adapter);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
+		// Listen for location updates
 		locationManager.requestLocationUpdates(provider,interval,distance,locationListener);
 	}
 
 	@Override
 	public void onDestroy() {
 		mNM.cancel(NOTIFICATION_ID);
+		locationManager.removeUpdates(locationListener);
 		super.onDestroy();
 	}
 
@@ -113,7 +115,33 @@ public class Main extends ListActivity {
 	}
 
 	public void Record(View view) {
-Tooltip("Record() under development");
+		if(isRecording) {
+			if (t1rec == 0L)	// Nothing recorded
+				Tooltip("Nothing recorded");
+			else {
+				db.addIndex(t1rec,t2rec,Lib.ts2sdts(t2rec));
+				adapter.getCursor().requery();
+				Tooltip("Recorded");
+			}
+			t1rec = t2rec = 0L;
+			setTitleColor(0xFFFFFFFF);
+			setTitle(R.string.app_name);
+			view.clearAnimation();
+		} else {
+			setTitle("Recording");
+			setTitleColor(0xFFFF0000);
+			RecAnimationStart(view);
+		}
+		isRecording = !isRecording;
+	}
+
+	private void RecAnimationStart(View view) {
+		final Animation animation = new AlphaAnimation(0.93f, 0.34f); // Change alpha from fully visible to invisible
+		animation.setDuration(510); // milliseconds
+		animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+		animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+		animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+		view.startAnimation(animation);
 	}
 
 	public void Snapshot(View view) {
@@ -159,6 +187,15 @@ Tooltip("Record() under development");
 		@Override
 		public void onLocationChanged(Location location) {
 			updateNotifiction(sLocation(location));
+			if(isRecording) {
+				db.addFrame(location.getTime(),location.getLatitude(),location.getLongitude(),location.getAccuracy(),location.getProvider(),1);
+				if(t1rec == 0L) {				// Fix start time
+					t1rec = location.getTime();
+					Tooltip("Fix start time");
+				}
+				t2rec = location.getTime();	// Update end time
+				Tooltip("Recorded frame "+t2rec);
+			}
 		}
 		@Override
 		public void onProviderDisabled(String provider) {

@@ -30,7 +30,7 @@ public class dbAdapter extends CursorAdapter {
 		long t1 = curs.getLong(1);
 		long t2 = curs.getLong(2);
 		ico.setImageResource(t1 == t2 ? R.drawable.ic_action_photo : R.drawable.ic_action_video);
-		tag.setText(curs.getString(3)==null ? Lib.ts2dts(t2) : curs.getString(3));
+		tag.setText(curs.getString(3)==null ? Lib.ts2sdts(t2) : curs.getString(3));
 	}
 
 }

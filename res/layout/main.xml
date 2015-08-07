@@ -15,16 +15,18 @@
 	<LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content" 
-        android:layout_height="40dp"
+        android:layout_height="60dp"
         android:layout_gravity="center">
-        <ImageButton android:id="@+id/ctrl"
-            android:layout_width="75dp" 
+        <ImageButton android:id="@+id/snapshot"
+            android:layout_width="90dp" 
             android:layout_height="wrap_content"
+            android:paddingRight="5dp"
             android:onClick="Snapshot"
             android:src="@drawable/ic_action_photo" />
-        <ImageButton android:id="@+id/ctrl"
-            android:layout_width="75dp" 
+        <ImageButton android:id="@+id/record"
+            android:layout_width="90dp" 
             android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
             android:onClick="Record"
             android:src="@drawable/ic_action_video" />
     </LinearLayout>

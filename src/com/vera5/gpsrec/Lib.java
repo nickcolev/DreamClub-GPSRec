@@ -40,26 +40,20 @@ public class Lib {
 	}
 
 	protected static String ts2dts(long timestamp) {	// TimeStamp-to-DateTimeString
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return ts2ds(timestamp,"yyyy-MM-dd HH:mm:ss");
+	}
+
+	protected static String ts2sdts(long timestamp) {	// TimeStamp-to-ShortDateTimeString
+		return ts2ds(timestamp,"yyyy-MM-dd HH:mm");
+	}
+
+	protected static String ts2ts(long timestamp) {		// TimeStamp-to-TimeString
+		return ts2ds(timestamp,"HH:mm");
+	}
+
+	protected static String ts2ds(long timestamp,String format) {
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
 		return sdf.format(new Date(timestamp));
-	}
-
-	protected static String ts2ts(long timestamp) {	// TimeStamp-to-TimeString
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-		return sdf.format(new Date(timestamp));
-	}
-
-	protected static CharSequence todays() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		return sdf.format(new Date());
-	}
-
-	protected static long todayl(boolean end) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR_OF_DAY, end ? 24 : 0);
-		cal.set(Calendar.MINUTE, end ? 59 : 0);
-		cal.set(Calendar.SECOND, end ? 59 : 0);
-		return cal.getTimeInMillis();
 	}
 
 }

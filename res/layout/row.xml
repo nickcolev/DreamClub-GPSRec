@@ -14,7 +14,7 @@
 			android:id="@+id/tag"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:textSize="18sp"
+			android:textSize="20sp"
 			android:paddingLeft="8dp" />
 	</TableRow>
 </TableLayout> 
