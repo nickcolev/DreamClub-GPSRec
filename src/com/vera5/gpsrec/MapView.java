@@ -40,8 +40,9 @@ public class MapView extends Activity {
 		//webview.setWebChromeClient(new WebChromeClient());
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
+Log.d("***", "id="+id+", tag="+tag+", t1="+t1+", t2="+t2);
 		String html = setHtml(getMarkers());
-//Log.d("***", html);
+Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
@@ -106,6 +107,7 @@ public class MapView extends Activity {
 	}
 
 	private String getMarkers() {
+Log.d("***", "getMarkers()");
 		return db.getMarkers(t1,t2);
 	}
 

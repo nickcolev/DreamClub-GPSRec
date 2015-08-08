@@ -7,7 +7,9 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.animation.*;	// Animation
 import android.view.View.OnClickListener;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -27,8 +30,8 @@ public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
   // FIXME For production, select good values below
-  private final long interval = 3000;	// interval between location updates in ms
-  private final float distance = 12f;	// distance between location updates in meters
+  private final long interval = 2500;	// interval between location updates in ms
+  private final float distance = 3.6f;	// distance between location updates in meters
   private final AlphaAnimation animation = null;
   private gpsDatabase db;
   private ListView lv;
@@ -120,16 +123,17 @@ public class Main extends ListActivity {
 				Tooltip("Nothing recorded");
 			else {
 				db.addIndex(t1rec,t2rec,Lib.ts2sdts(t2rec));
+				// Exception: When only one frame recorded --
+				// Lets treat it as a snapshot.
+				if (t1rec == t2rec) db.rec2snapshot(t2rec);
 				adapter.getCursor().requery();
 				Tooltip("Saved");
 			}
 			t1rec = t2rec = 0L;
-			setTitleColor(0xFFFFFFFF);
-			setTitle(R.string.app_name);
+			setTtl(R.string.app_name,0xFFFFFFFF);
 			view.clearAnimation();
 		} else {
-			setTitle("Recording");
-			setTitleColor(0xFFFF0000);
+			setTtl(R.string.ttl_rec,0xFFFFFF00);
 			RecAnimationStart(view);
 		}
 		isRecording = !isRecording;
@@ -137,10 +141,10 @@ public class Main extends ListActivity {
 
 	private void RecAnimationStart(View view) {
 		final Animation animation = new AlphaAnimation(0.93f, 0.34f); // Change alpha from fully visible to invisible
-		animation.setDuration(510); // milliseconds
-		animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
-		animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
-		animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+		animation.setDuration(510); 	// milliseconds
+		animation.setInterpolator(new LinearInterpolator());
+		animation.setRepeatCount(Animation.INFINITE);
+		animation.setRepeatMode(Animation.REVERSE);
 		view.startAnimation(animation);
 	}
 
@@ -183,15 +187,28 @@ public class Main extends ListActivity {
 			+	Lib.round5(location.getLatitude())+","+Lib.round5(location.getLongitude());
 	}
 
+	private void setTtl(int title,int color) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			int ttlID = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");  
+			TextView ttlTV = (TextView) findViewById(ttlID);
+			ttlTV.setTextColor(color);
+			ttlTV.setText(title);
+		} else {
+			setTitle(title);
+			setTitleColor(color);
+		}
+	}
+
 	final class MyListener implements LocationListener {
 		@Override
 		public void onLocationChanged(Location location) {
 			updateNotifiction(sLocation(location));
 			if(isRecording) {
-				db.addFrame(location.getTime(),location.getLatitude(),location.getLongitude(),location.getAccuracy(),location.getProvider(),1);
+				db.addFrame(location.getTime(),location.getLatitude(),location.getLongitude(),location.getAccuracy(),location.getProvider(),2);
 				if(t1rec == 0L)				// Fix start time
 					t1rec = location.getTime();
 				t2rec = location.getTime();	// Update end time
+				setTitle(getTitle()+".");
 			}
 		}
 		@Override
