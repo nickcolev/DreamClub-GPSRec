@@ -87,11 +87,64 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		String json = "";
 		if (curs.moveToFirst()) {
 			do {
-				json += "['"+Lib.ts2sdts(curs.getLong(0))+"', "+curs.getFloat(1)+", "+curs.getFloat(2)+", 1],";
+				json += ",['"+Lib.ts2sdts(curs.getLong(0))+"', "+curs.getFloat(1)+", "+curs.getFloat(2)+", 1]";
 			} while (curs.moveToNext());
 		}
+		if (json.startsWith(",")) json = json.substring(1);
 //Log.d("***", "json: "+json);
-		return json.substring(0,json.length()-1);
+		return json;
+	}
+
+	protected MapAttr calcMapAttributes(long t1,long t2) {
+		SQLiteDatabase db = getReadableDatabase();
+		MapAttr mapAttr = new MapAttr();
+		// Defaults
+		mapAttr.lat = 40f;
+		mapAttr.lng = 8f;
+		mapAttr.zoom = 14;
+		// Process
+		if (t1 == t2) {		// Snapshot
+			Cursor curs = db.rawQuery("SELECT lat,lng FROM frames WHERE ts="+t2,null);
+			if (curs.moveToFirst()) {
+				mapAttr.lat = curs.getFloat(0);
+				mapAttr.lng = curs.getFloat(1);
+			}
+		} else {			// Record
+			// Get bound rectangle
+			Cursor curs = db.rawQuery("SELECT min(lat),max(lat),min(lng),max(lng) FROM frames WHERE ts BETWEEN "+t1+" AND "+t2,null);
+			if (curs.moveToFirst()) {
+				// Calc the center
+				mapAttr.lat = (curs.getFloat(0) + curs.getFloat(1)) / 2;
+				mapAttr.lng = (curs.getFloat(2) + curs.getFloat(3)) / 2;
+				// Hypothenuse length
+				double h = Math.sqrt(
+					(float)Math.pow(curs.getFloat(1)-curs.getFloat(0), 2d) +
+					(float)Math.pow(curs.getFloat(3)-curs.getFloat(2), 2d)
+				);
+				mapAttr.dim = h;
+				// Calc the zoom -- FIXME Further test and adjustment
+				// Home-Coevering 0.00682 ~800m
+				// Ein-Antw-Bru 1.22606
+				int zoom;
+				if (h > 1.7) zoom = 7;
+				else if (h > 1.2) zoom = 8;
+				else if (h > 0.9) zoom = 9;
+				else if (h > 0.5) zoom = 10;
+				else if (h > 0.1) zoom = 11;
+				else if (h > 0.075) zoom = 12;
+				else if (h > 0.025) zoom = 13;
+				else if (h > 0.01) zoom = 14;
+				else if (h > 0.005) zoom = 15;
+				else if (h > 0.0001) zoom = 16;
+				else if (h > 0.00015) zoom = 17;
+				else if (h > 0.00021) zoom = 18;
+				else zoom = 19;
+				mapAttr.zoom = zoom;
+Log.d("***", "hyp: "+Lib.round5(h)+", zoom: "+zoom);
+			}
+		}
+mapAttr.center.lat = 5.23d;
+		return mapAttr;
 	}
 
 	public void rec2snapshot(long ts) {

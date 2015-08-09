@@ -21,34 +21,35 @@ public class MapView extends Activity {
   private String tag;
   private long id, t1, t2;
   private gpsDatabase db;
+  private MapAttr mapAttr;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mapview);
-		db = new gpsDatabase(this);
 		// Process args
 		Bundle extras = getIntent().getExtras();
 		id  = extras.getLong("id");
 		tag = extras.getString("tag");
 		t1  = extras.getLong("t1");
 		t2  = extras.getLong("t2");
-		setTitle(tag == null ? Lib.ts2dts(t2) : tag);		
+		setTitle(tag == null ? Lib.ts2dts(t2) : tag);
+		// db
+		db = new gpsDatabase(this);
+		mapAttr = db.calcMapAttributes(t1,t2);
+Tooltip("dim: "+Lib.round5(mapAttr.dim)+", zoom: "+mapAttr.zoom);
 		// Setup the WebView
 		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
-		//webview.setWebChromeClient(new WebChromeClient());
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
-Log.d("***", "id="+id+", tag="+tag+", t1="+t1+", t2="+t2);
 		String html = setHtml(getMarkers());
-Log.d("***", html);
+//Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
 	private String setHtml(String markers) {
-		String center = spotCenter(markers);
-		String zoom = "14";
+Log.d("***", "mapAttr.zoom="+mapAttr.zoom+", LatLng="+mapAttr.lat+","+mapAttr.lng);
 		return "<script src=\"http://maps.google.com/maps/api/js?sensor=false\" type=\"text/javascript\"></script>\n"
 			+ "<style type=\"text/css\">\n"
 			+ "html, body { body: 0; margin: 0; }\n"
@@ -60,8 +61,8 @@ Log.d("***", html);
 			+ "o.style.width = window.innerWidth;\n"
 			+ "o.style.height = window.innerHeight;\n"
 			+ "var map = new google.maps.Map(document.getElementById('map'), {\n"
-			+ "  zoom: "+zoom+",\n"
-			+ "  center: new google.maps.LatLng("+center+"),\n"
+			+ "  zoom: "+mapAttr.zoom+",\n"
+			+ "  center: new google.maps.LatLng("+mapAttr.lat+","+mapAttr.lng+"),\n"
 			+ "  mapTypeId: google.maps.MapTypeId.ROADMAP\n"
 			+ "});\n"
 			+ setMapMarkers(markers)
@@ -86,28 +87,7 @@ Log.d("***", html);
 			+ "}\n";
 	}
 
-	private String spotCenter(String s) {
-		// ['tag',lat,lng,a]	FIXME awful logic
-		int i = s.indexOf("[");
-		if(i != -1) {
-			s = s.substring(i+1);
-			i = s.indexOf("]");
-			if(i != -1) {
-				s = s.substring(0,i);
-				i = s.indexOf(",");
-				if(i != -1) {
-					s = s.substring(i+1);
-					String[] a = s.split(",");
-					s = a[0]+","+a[1];
-					return s;
-				}
-			}
-		}
-		return "47.071876, 15.441456";	// FIXME
-	}
-
 	private String getMarkers() {
-Log.d("***", "getMarkers()");
 		return db.getMarkers(t1,t2);
 	}
 

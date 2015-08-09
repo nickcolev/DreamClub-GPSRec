@@ -30,8 +30,8 @@ public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
   // FIXME For production, select good values below
-  private final long interval = 2500;	// interval between location updates in ms
-  private final float distance = 3.6f;	// distance between location updates in meters
+  private final long interval = 2500l;	// interval between location updates in ms
+  private final float distance = 25f;	// distance between location updates in meters
   private final AlphaAnimation animation = null;
   private gpsDatabase db;
   private ListView lv;
@@ -133,7 +133,7 @@ public class Main extends ListActivity {
 			setTtl(R.string.app_name,0xFFFFFFFF);
 			view.clearAnimation();
 		} else {
-			setTtl(R.string.ttl_rec,0xFFFFFF00);
+			setTtl(R.string.ttl_rec,0xFFFFCC00);
 			RecAnimationStart(view);
 		}
 		isRecording = !isRecording;
