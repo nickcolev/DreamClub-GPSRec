@@ -1,15 +1,17 @@
 package com.vera5.gpsrec;
 
 public class MapAttr {
+	long time;
 	double lat;
 	double lng;
-	LatLng center;
 	int zoom;
 	double dim;
-	public MapAttr() {
-		this.center = new LatLng();
+	public MapAttr(long time,double lat,double lng) {
+		this.time = time;
+		this.lat = lat;
+		this.lng = lng;
 	}
-	public class LatLng {
+	class LatLng {
 		double lat;
 		double lng;
 	}

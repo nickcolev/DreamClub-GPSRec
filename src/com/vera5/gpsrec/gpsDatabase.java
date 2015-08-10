@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 public class gpsDatabase extends SQLiteOpenHelper {
 
@@ -78,44 +80,46 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		db.execSQL("DELETE FROM frames WHERE a="+a+" AND ts BETWEEN "+t1+" AND "+t2);
 	}
 
-	public String getMarkers(long t1, long t2) {
+	public List<MapAttr> getMarkers(long t1, long t2) {
 		SQLiteDatabase db = getReadableDatabase();
 		int a = getA(t1,t2);
 		String sql = "SELECT ts,lat,lng,p,src FROM frames WHERE a="+a
 			+ " AND ts BETWEEN "+t1+" AND "+t2;
 		Cursor curs = db.rawQuery(sql,null);
-		String json = "";
+		List<MapAttr> list = new ArrayList<MapAttr>();
 		if (curs.moveToFirst()) {
 			do {
-				json += ",['"+Lib.ts2sdts(curs.getLong(0))+"', "+curs.getFloat(1)+", "+curs.getFloat(2)+", 1]";
+				list.add(new MapAttr(curs.getLong(0),curs.getFloat(1),curs.getFloat(2)));
 			} while (curs.moveToNext());
 		}
-		if (json.startsWith(",")) json = json.substring(1);
-//Log.d("***", "json: "+json);
-		return json;
+		curs.close();
+		return list;
 	}
 
 	protected MapAttr calcMapAttributes(long t1,long t2) {
 		SQLiteDatabase db = getReadableDatabase();
-		MapAttr mapAttr = new MapAttr();
+		Cursor curs;
+		MapAttr mapAttr = new MapAttr(100,40.0,8.0);
 		// Defaults
 		mapAttr.lat = 40f;
 		mapAttr.lng = 8f;
 		mapAttr.zoom = 14;
 		// Process
 		if (t1 == t2) {		// Snapshot
-			Cursor curs = db.rawQuery("SELECT lat,lng FROM frames WHERE ts="+t2,null);
+			curs = db.rawQuery("SELECT lat,lng FROM frames WHERE ts="+t2,null);
 			if (curs.moveToFirst()) {
 				mapAttr.lat = curs.getFloat(0);
 				mapAttr.lng = curs.getFloat(1);
 			}
 		} else {			// Record
 			// Get bound rectangle
-			Cursor curs = db.rawQuery("SELECT min(lat),max(lat),min(lng),max(lng) FROM frames WHERE ts BETWEEN "+t1+" AND "+t2,null);
+			curs = db.rawQuery("SELECT min(lat),max(lat),min(lng),max(lng) FROM frames WHERE ts BETWEEN "+t1+" AND "+t2,null);
 			if (curs.moveToFirst()) {
 				// Calc the center
 				mapAttr.lat = (curs.getFloat(0) + curs.getFloat(1)) / 2;
 				mapAttr.lng = (curs.getFloat(2) + curs.getFloat(3)) / 2;
+				// Set bound rectangle
+				// Farther point
 				// Hypothenuse length
 				double h = Math.sqrt(
 					(float)Math.pow(curs.getFloat(1)-curs.getFloat(0), 2d) +
@@ -140,10 +144,10 @@ public class gpsDatabase extends SQLiteOpenHelper {
 				else if (h > 0.00021) zoom = 18;
 				else zoom = 19;
 				mapAttr.zoom = zoom;
-Log.d("***", "hyp: "+Lib.round5(h)+", zoom: "+zoom);
+//Log.d("***", "hyp: "+Lib.round5(h)+", zoom: "+zoom);
 			}
 		}
-mapAttr.center.lat = 5.23d;
+		curs.close();
 		return mapAttr;
 	}
 
