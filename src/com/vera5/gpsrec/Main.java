@@ -12,6 +12,9 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.animation.*;	// Animation
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.view.View;
 import android.widget.AdapterView;
@@ -104,6 +107,24 @@ public class Main extends ListActivity {
 			Tooltip("Recording");
 		else
 			super.onBackPressed();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.db_send:
+				Tooltip("db send under development");
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private void Delete(final Cursor curs, final long id) {

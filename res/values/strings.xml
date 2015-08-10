@@ -2,5 +2,6 @@
 <resources>
     <string name="app_name">GPS recorder</string>
     <string name="ttl_rec">Recording</string>
+    <string name="db_send">Email db</string>
     <string name="tag">Tag</string>
 </resources>
