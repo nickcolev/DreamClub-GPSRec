@@ -34,8 +34,6 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		db.execSQL("CREATE INDEX frames_ts ON frames(ts)");
 		// Test data
 		// some snapshots
-		addIndex(db,1438523596246L,1438523596246L,"Eindhoven");
-		addFrame(db,1438523596246L,51.439425D,5.475918D,20F,"mock",fSingle);
 		addIndex(db,1438523973450L,1438523973450L,"Reni place");
 		addFrame(db,1438523973450L,51.423071D,5.574119D,20F,"mock",fSingle);
 		addIndex(db,1438524197378L,1438524197378L,"Shumen");
@@ -119,36 +117,38 @@ public class gpsDatabase extends SQLiteOpenHelper {
 				mapAttr.lat = (curs.getFloat(0) + curs.getFloat(1)) / 2;
 				mapAttr.lng = (curs.getFloat(2) + curs.getFloat(3)) / 2;
 				// Set bound rectangle
-				// Farther point
 				// Hypothenuse length
 				double h = Math.sqrt(
 					(float)Math.pow(curs.getFloat(1)-curs.getFloat(0), 2d) +
 					(float)Math.pow(curs.getFloat(3)-curs.getFloat(2), 2d)
 				);
 				mapAttr.dim = h;
-				// Calc the zoom -- FIXME Further test and adjustment
-				// Home-Coevering 0.00682 ~800m
-				// Ein-Antw-Bru 1.22606
-				int zoom;
-				if (h > 1.7) zoom = 7;
-				else if (h > 1.2) zoom = 8;
-				else if (h > 0.9) zoom = 9;
-				else if (h > 0.5) zoom = 10;
-				else if (h > 0.1) zoom = 11;
-				else if (h > 0.075) zoom = 12;
-				else if (h > 0.025) zoom = 13;
-				else if (h > 0.01) zoom = 14;
-				else if (h > 0.005) zoom = 15;
-				else if (h > 0.0001) zoom = 16;
-				else if (h > 0.00015) zoom = 17;
-				else if (h > 0.00021) zoom = 18;
-				else zoom = 19;
-				mapAttr.zoom = zoom;
-//Log.d("***", "hyp: "+Lib.round5(h)+", zoom: "+zoom);
+				mapAttr.zoom = calcZoom(h);
 			}
 		}
 		curs.close();
 		return mapAttr;
+	}
+
+	private int calcZoom(double h) {
+		// Calc the zoom -- FIXME Further test and adjustment
+		// Home-Coevering 0.00682 ~800m
+		// Ein-Antw-Bru 1.22606
+		int zoom;
+		if (h > 1.7) zoom = 7;
+		else if (h > 1.2) zoom = 8;
+		else if (h > 0.9) zoom = 9;
+		else if (h > 0.5) zoom = 10;
+		else if (h > 0.1) zoom = 11;
+		else if (h > 0.075) zoom = 12;
+		else if (h > 0.025) zoom = 13;
+		else if (h > 0.01) zoom = 14;
+		else if (h > 0.005) zoom = 15;
+		else if (h > 0.0001) zoom = 16;
+		else if (h > 0.00015) zoom = 17;
+		else if (h > 0.00021) zoom = 18;
+		else zoom = 19;
+		return zoom;
 	}
 
 	public void rec2snapshot(long ts) {

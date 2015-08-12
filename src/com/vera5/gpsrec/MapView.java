@@ -45,12 +45,11 @@ public class MapView extends Activity {
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
 		String html = setHtml("");
-Log.d("***", html);
+//Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
 	private String setHtml(String markers) {
-//Log.d("***", "mapAttr.zoom="+mapAttr.zoom+", LatLng="+mapAttr.lat+","+mapAttr.lng);
 		return "<script src=\"http://maps.google.com/maps/api/js?sensor=false\" type=\"text/javascript\"></script>\n"
 			+ "<style type=\"text/css\">\n"
 			+ "html, body { body: 0; margin: 0; }\n"
@@ -89,10 +88,34 @@ Log.d("***", html);
 	}
 
 	private String jsRecord(List<MapAttr> a) {
-		int size = a.size();
-		String firstMarker = jsMarker(a.get(0),"markerA","A");
-		String lastMarker = jsMarker(a.get(size-1),"markerB","B");
-		return firstMarker + lastMarker + jsPolyline(a);
+		String firstMarker="",lastMarker="",farMarker="";
+		double lat=0,lng=0,fFar=0,fpit;
+		MapAttr ma;
+		int iFar=0, size=a.size();
+		for (int i=0; i<size; i++) {
+			ma = a.get(i);
+			if (i == 0) {	// Save the first point
+				lat = ma.lat;
+				lng = ma.lng;
+				firstMarker = jsMarker(a.get(0),"markerA","A");
+			}
+			if (i == (size - 1)) {	// Last
+				lastMarker = jsMarker(a.get(size-1),"markerB","B");
+			}
+			if (i > 0) {
+				fpit = calcDistance(ma,lat,lng);
+				if (fpit > fFar) {
+					fFar = fpit;
+					iFar = i;
+				}
+			}
+		}
+		if (iFar > 0) farMarker = jsMarker(a.get(iFar),"markerF","F");
+		return firstMarker + farMarker + lastMarker + jsPolyline(a);
+	}
+
+	private double calcDistance(MapAttr ma, double lat, double lng) {
+		return Math.pow(Math.abs(ma.lat-lat),2)+Math.pow(Math.abs(ma.lng-lng),2);
 	}
 
 	private String jsMarker(MapAttr p, String name, String label) {
