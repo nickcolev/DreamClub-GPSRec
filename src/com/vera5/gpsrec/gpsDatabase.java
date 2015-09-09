@@ -101,7 +101,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		// Defaults
 		mapAttr.lat = 40f;
 		mapAttr.lng = 8f;
-		mapAttr.zoom = 14;
+		mapAttr.zoom = 16;
 		// Process
 		if (t1 == t2) {		// Snapshot
 			curs = db.rawQuery("SELECT lat,lng FROM frames WHERE ts="+t2,null);
