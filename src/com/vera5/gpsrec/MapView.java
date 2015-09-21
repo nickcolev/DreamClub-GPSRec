@@ -40,14 +40,12 @@ public class MapView extends Activity {
 		// db
 		db = new gpsDatabase(this);
 		mapAttr = db.calcMapAttributes(t1,t2);
-//Tooltip("dim: "+Lib.round5(mapAttr.dim)+", zoom: "+mapAttr.zoom);
 		// Setup the WebView
 		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setBuiltInZoomControls(false);
 		webview.getSettings().setSupportZoom(false);
 		String html = setHtml("");
-//Log.d("***", html);
 		webview.loadData(html,"text/html","UTF-8");
 	}
 
@@ -170,6 +168,9 @@ public class MapView extends Activity {
 			case R.id.tag:
 				tagDialog();
 				return true;
+			case R.id.info:
+				viewInfo();
+				return true;
 			case R.id.view_send:
 				viewSend();
 				return true;
@@ -207,6 +208,13 @@ public class MapView extends Activity {
 			csv += ""+Lib.ts2dts(ma.time)+","+ma.lat+","+ma.lng+","+Lib.round1(ma.p)+","+ma.src+"\n";
 		}
 		return csv;
+	}
+
+	private void viewInfo() {
+		Intent intent = new Intent(getApplicationContext(), MapViewInfo.class);
+		String s = getMarkersCSV(t1, t2);
+		intent.putExtra("csv", s);
+		startActivity(intent);
 	}
 
 	private void viewSend() {
