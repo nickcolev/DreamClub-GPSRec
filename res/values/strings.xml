@@ -4,4 +4,6 @@
     <string name="ttl_rec">Recording</string>
     <string name="db_send">Email db</string>
     <string name="tag">Tag</string>
+    <string name="info">Info</string>
+    <string name="view_send">Email</string>
 </resources>
