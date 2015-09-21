@@ -3,7 +3,9 @@ package com.vera5.gpsrec;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -168,6 +170,9 @@ public class MapView extends Activity {
 			case R.id.tag:
 				tagDialog();
 				return true;
+			case R.id.view_send:
+				viewSend();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -189,6 +194,29 @@ public class MapView extends Activity {
 			}
 		});
 		alert.show();
+	}
+
+	private String getMarkersCSV(long t1, long t2) {
+		MapAttr ma;
+		List<MapAttr> list = db.getMarkers(t1,t2);
+		int size = list.size();
+		// Collect data
+		String csv = "CSV\nTime,Lattitude,Longitude,Accuracy,Provider\n";
+		for (int i=0; i<size; i++) {
+			ma = list.get(i);
+			csv += ""+Lib.ts2dts(ma.time)+","+ma.lat+","+ma.lng+","+Lib.round1(ma.p)+","+ma.src+"\n";
+		}
+		return csv;
+	}
+
+	private void viewSend() {
+		// Send email
+		Intent intent = new Intent(Intent.ACTION_SENDTO);
+		intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+		intent.putExtra(Intent.EXTRA_SUBJECT, "StopWatch log");
+		intent.putExtra(Intent.EXTRA_TEXT, getMarkersCSV(t1,t2));
+		if (intent.resolveActivity(getPackageManager()) != null)
+			startActivity(intent);
 	}
 
 }

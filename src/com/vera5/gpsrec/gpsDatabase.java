@@ -87,7 +87,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 		List<MapAttr> list = new ArrayList<MapAttr>();
 		if (curs.moveToFirst()) {
 			do {
-				list.add(new MapAttr(curs.getLong(0),curs.getFloat(1),curs.getFloat(2)));
+				list.add(new MapAttr(curs.getLong(0),curs.getFloat(1),curs.getFloat(2),curs.getFloat(3),curs.getString(4)));
 			} while (curs.moveToNext());
 		}
 		curs.close();
@@ -97,7 +97,7 @@ public class gpsDatabase extends SQLiteOpenHelper {
 	protected MapAttr calcMapAttributes(long t1,long t2) {
 		SQLiteDatabase db = getReadableDatabase();
 		Cursor curs;
-		MapAttr mapAttr = new MapAttr(100,40.0,8.0);
+		MapAttr mapAttr = new MapAttr(100,40d,8d,10f,"x");
 		// Defaults
 		mapAttr.lat = 40f;
 		mapAttr.lng = 8f;
