@@ -32,9 +32,12 @@ import android.location.LocationManager;
 public class Main extends ListActivity {
 
   private static final int NOTIFICATION_ID = 9315;
+  // Average human walk speed is 1.4 m/s
+  // Average bycicle -- 4.3 m/s
+  // Car (70 km/h) -- 19.5 m/s
   // FIXME For production, select good values below
-  private final long interval = 2500l;	// interval between location updates in ms
-  private final float distance = 50f;	// distance between location updates in meters
+  private final long interval = 3000l;	// interval between location updates in ms
+  private final float distance = 12f;	// distance between location updates in meters
   private final AlphaAnimation animation = null;
   private gpsDatabase db;
   private ListView lv;
